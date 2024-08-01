@@ -1,45 +1,50 @@
 #include "main.h"
+
 /**
- * _printf - is a function that selects the correct function to print.
- * @format: identifier to look for.
- * Return: the length of the string.
+ * _printf - A function that selects the appropriate function to print.
+ * @format: The format string that specifies how to format the output.
+ * Return: The total length of the printed string.
  */
-int _printf(const char * const format, ...)
+int _printf(const char * const format_str, ...)
 {
-	convert_match m[] = {
-		{"%s", printf_string}, {"%c", printf_char},
-		{"%%", printf_37},
-		{"%i", printf_int}, {"%d", printf_dec}, {"%r", printf_srev},
-		{"%R", printf_rot13}, {"%b", printf_bin}, {"%u", printf_unsigned},
-		{"%o", printf_oct}, {"%x", printf_hex}, {"%X", printf_HEX},
-		{"%S", printf_exclusive_string}, {"%p", printf_pointer}
-	};
+    match functions[] = {
+        {"%s", _string}, {"%c", _char},
+        {"%%", _37}, {"%i", _int},
+        {"%d", _dec}, {"%r", _srev},
+        {"%R", _rot13}, {"%b", _bin},
+        {"%u", _unsigned}, {"%o", _oct},
+        {"%x", _hex}, {"%X", _HEX},
+        {"%S", _exclusive}, {"%p", _pointer}
+    };
 
-	va_list args;
-	int i = 0, j, len = 0;
+    va_list args_list;
+    int index = 0, func_index, total_length = 0;
 
-	va_start(args, format);
-	if (format == NULL || (format[0] == '%' && format[1] == '\0'))
-		return (-1);
+    va_start(args_list, format_str);
+    if (format_str == NULL || (format_str[0] == '%' && format_str[1] == '\0'))
+        return (-1);
 
-Here:
-	while (format[i] != '\0')
-	{
-		j = 13;
-		while (j >= 0)
-		{
-			if (m[j].id[0] == format[i] && m[j].id[1] == format[i + 1])
-			{
-				len += m[j].f(args);
-				i = i + 2;
-				goto Here;
-			}
-			j--;
-		}
-		_putchar(format[i]);
-		len++;
-		i++;
-	}
-	va_end(args);
-	return (len);
+    while (format_str[index] != '\0')
+    {
+        func_index = sizeof(functions) / sizeof(functions[0]) - 1;
+        while (func_index >= 0)
+        {
+            if (functions[func_index].id[0] == format_str[index] &&
+                functions[func_index].id[1] == format_str[index + 1])
+            {
+                total_length += functions[func_index].f(args_list);
+                index += 2;
+                break;
+            }
+            func_index--;
+        }
+        if (func_index < 0)
+        {
+            _putchar(format_str[index]);
+            total_length++;
+            index++;
+        }
+    }
+    va_end(args_list);
+    return (total_length);
 }
